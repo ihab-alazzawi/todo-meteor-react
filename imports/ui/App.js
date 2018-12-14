@@ -14,9 +14,9 @@ class App extends Component {
   };
 
   handleChange = event => {
-    this.setState({
+    this.setState(() => ({
       [event.target.name]: event.target.value
-    });
+    }));
   };
 
   handleSubmit = event => {
@@ -25,13 +25,13 @@ class App extends Component {
     const text = this.state.text.trim();
     Meteor.call('tasks.insert', text);
     // Clear form
-    this.setState({ text: '' });
+    this.setState(() => ({ text: '' }));
   };
 
   toggleHideCompleted = () => {
-    this.setState({
-      hideCompleted: !this.state.hideCompleted
-    });
+    this.setState(prevState => ({
+      hideCompleted: !prevState.hideCompleted
+    }));
   };
 
   renderTasks = () => {
@@ -40,7 +40,8 @@ class App extends Component {
       filteredTasks = filteredTasks.filter(task => !task.checked);
     }
     return filteredTasks.map(task => {
-      const currentUserId = this.props.currentUser && this.props.currentUser._id;
+      const { currentUser } = this.props;
+      const currentUserId = currentUser && currentUser._id;
       const showPrivateButton = task.owner === currentUserId;
 
       return <Task key={task._id} task={task} showPrivateButton={showPrivateButton} />;
@@ -48,23 +49,24 @@ class App extends Component {
   };
 
   render() {
-    const { text } = this.state;
+    const { text, hideCompleted } = this.state;
+    const { incompleteCount, currentUser } = this.props;
 
     return (
       <div className="container">
         <header>
-          <h1>Pending Tasks ({this.props.incompleteCount})</h1>
+          <h1>Pending Tasks ({incompleteCount})</h1>
           <label className="hide-completed">
             <input
               type="checkbox"
               readOnly
-              checked={this.state.hideCompleted}
+              checked={hideCompleted}
               onClick={this.toggleHideCompleted}
             />
             Hide Completed Tasks
           </label>
           <AccountsUIWrapper />
-          {this.props.currentUser ? (
+          {currentUser ? (
             <form className="new-task" onSubmit={this.handleSubmit}>
               <input
                 type="text"

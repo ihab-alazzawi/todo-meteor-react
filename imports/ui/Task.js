@@ -1,28 +1,28 @@
 import React, { Component } from 'react';
 import { Meteor } from 'meteor/meteor';
-import { Tasks } from '../api/tasks.js';
 import classnames from 'classnames';
 
 export class Task extends Component {
   toggleChecked = () => {
     const { task } = this.props;
     // Set the checked property to the opposite of its current value
-    Meteor.call('tasks.setChecked', this.props.task._id, !this.props.task.checked);
+    Meteor.call('tasks.setChecked', task._id, !task.checked);
   };
 
   deleteThisTask = () => {
     Meteor.call('tasks.remove', this.props.task._id);
   };
 
-  togglePrivate() {
-    Meteor.call('tasks.setPrivate', this.props.task._id, !this.props.task.private);
-  }
+  togglePrivate = () => {
+    const { task } = this.props;
+    Meteor.call('tasks.setPrivate', task._id, !task.private);
+  };
 
   render() {
     const { task } = this.props;
     const taskClassName = classnames({
-      checked: this.props.task.checked,
-      private: this.props.task.private
+      checked: task.checked,
+      private: task.private
     });
     // Give tasks a different className when they are checked off,
     // so that we can style them nicely in CSS
@@ -35,15 +35,15 @@ export class Task extends Component {
 
         <input type="checkbox" readOnly checked={!!task.checked} onClick={this.toggleChecked} />
         {this.props.showPrivateButton ? (
-          <button className="toggle-private" onClick={this.togglePrivate.bind(this)}>
-            {this.props.task.private ? 'Private' : 'Public'}
+          <button className="toggle-private" onClick={this.togglePrivate}>
+            {task.private ? 'Private' : 'Public'}
           </button>
         ) : (
           ''
         )}
 
         <span className="text">
-          <strong>{this.props.task.username}</strong>:{task.text}
+          <strong>{task.username}</strong>:{task.text}
         </span>
       </li>
     );
